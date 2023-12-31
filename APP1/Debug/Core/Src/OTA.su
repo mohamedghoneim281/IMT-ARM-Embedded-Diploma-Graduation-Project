@@ -1,0 +1,7 @@
+../Core/Src/OTA.c:16:7:Bootloader_Send_ACK	24	static
+../Core/Src/OTA.c:24:7:Bootloader_Send_NACK	16	static
+../Core/Src/OTA.c:31:6:Bootloader_Send_Data_To_Host	16	static
+../Core/Src/OTA.c:39:9:Host_Address_Verification	24	static
+../Core/Src/OTA.c:58:10:Perform_Flash_Erase	48	static
+../Core/Src/OTA.c:162:16:Flash_Memory_Write_Payload	40	static
+../Core/Src/OTA.c:290:7:Bootloader_Upload_Sequence	24	static

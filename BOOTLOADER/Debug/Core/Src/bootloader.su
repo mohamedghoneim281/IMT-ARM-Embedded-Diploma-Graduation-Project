@@ -1,0 +1,4 @@
+../Core/Src/bootloader.c:10:6:Bootloader_Init	16	static
+../Core/Src/bootloader.c:58:10:readAddress	24	static
+../Core/Src/bootloader.c:65:6:Jump_To_App	24	static,ignoring_inline_asm
+../Core/Src/bootloader.c:76:6:deinitEverything	8	static
