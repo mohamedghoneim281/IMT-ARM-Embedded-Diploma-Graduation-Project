@@ -1,7 +1,6 @@
-OTA.c:16:7:Bootloader_Send_ACK	1
-OTA.c:24:7:Bootloader_Send_NACK	1
-OTA.c:31:6:Bootloader_Send_Data_To_Host	1
-OTA.c:39:9:Host_Address_Verification	5
-OTA.c:58:10:Perform_Flash_Erase	7
-OTA.c:162:16:Flash_Memory_Write_Payload	7
-OTA.c:290:7:Bootloader_Upload_Sequence	2
+../Core/Src/OTA.c:41:9:Host_Address_Verification	5
+../Core/Src/OTA.c:60:10:Perform_Flash_Erase	7
+../Core/Src/OTA.c:164:9:Flash_Memory_Write_Payload	7
+../Core/Src/OTA.c:216:7:Bootloader_Upload_Sequence	6
+../Core/Src/OTA.c:316:9:HexParser_u8Ascii2Num	5
+../Core/Src/OTA.c:333:6:HexParser_vParseData	11

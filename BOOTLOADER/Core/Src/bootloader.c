@@ -79,6 +79,7 @@ void deinitEverything()
 	HAL_GPIO_DeInit(GPIOA, 0);
 	HAL_GPIO_DeInit(GPIOA, 5);
 	HAL_GPIO_DeInit(GPIOA, 6);
+	HAL_GPIO_DeInit(GPIOA, 2);
 	  __HAL_RCC_GPIOC_CLK_DISABLE();
 	  __HAL_RCC_GPIOD_CLK_DISABLE();
 	  __HAL_RCC_GPIOB_CLK_DISABLE();

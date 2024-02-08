@@ -8,11 +8,13 @@
 
 
 #include "OTA.h"
+#include "usart.h"
+
+#include <stdlib.h>
 
 
 
-
-
+/*
  void Bootloader_Send_ACK(uint8_t Replay_Len)
 {
 	uint8_t Ack_Value[2] = {0};
@@ -33,7 +35,7 @@ void Bootloader_Send_Data_To_Host(uint8_t *Host_Buffer, uint32_t Data_Len)
 	HAL_SPI_Transmit(BL_HOST_COMMUNICATION_SPI, Host_Buffer, Data_Len, HAL_MAX_DELAY);
 }
 
-
+*/
 
 
 uint8_t Host_Address_Verification(uint32_t Jump_Address){
@@ -159,7 +161,7 @@ uint8_t Host_Address_Verification(uint32_t Jump_Address){
 
 
 
-static uint8_t Flash_Memory_Write_Payload(uint8_t *Host_Payload, uint32_t Payload_Start_Address, uint16_t Payload_Len)
+uint8_t Flash_Memory_Write_Payload(uint16_t *Host_Payload, uint32_t Payload_Start_Address, uint8_t Payload_Len)
 {
 	HAL_StatusTypeDef HAL_Status = HAL_ERROR;
 	uint8_t Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
@@ -174,10 +176,10 @@ static uint8_t Flash_Memory_Write_Payload(uint8_t *Host_Payload, uint32_t Payloa
 	}
 	else
     {
-		for(Payload_Counter = 0; Payload_Counter < Payload_Len; Payload_Counter++)
+		for(Payload_Counter = 0; Payload_Counter < Payload_Len; Payload_Counter+=2)
         {
 			/* Program a byte at a specified address */
-			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_BYTE, Payload_Start_Address + Payload_Counter, Host_Payload[Payload_Counter]);
+			HAL_Status = HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, Payload_Start_Address + Payload_Counter, Host_Payload[(Payload_Counter/2)]);
 			if(HAL_Status != HAL_OK)
             {
 				Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
@@ -210,121 +212,272 @@ static uint8_t Flash_Memory_Write_Payload(uint8_t *Host_Payload, uint32_t Payloa
 	
 	return Flash_Payload_Write_Status;
 }
-
-
-
-
-
-//
-//
-// uint8_t Bootloader_Memory_Write(uint8_t *Host_Buffer)
-// {
-//	uint16_t Host_CMD_Packet_Len = 0;
-//	uint32_t HOST_Address = 0;
-//	uint8_t Payload_Len = 0;
-//	uint8_t Address_Verification = ADDRESS_IS_INVALID;
-//	uint8_t Flash_Payload_Write_Status = FLASH_PAYLOAD_WRITE_FAILED;
-//	uint8_t Write_status = WRITE_FAILED;
-//
-//	// BL_Print_Message("Write data into different memories of the MCU \r\n");  ------------------> writing starts
-//
-//
-//		/* Send acknowledgement to the HOST */
-//	// Bootloader_Send_ACK(1);
-//		/* Extract the start address from the Host packet */
-//	HOST_Address = *((uint32_t *)(&Host_Buffer[2]));
-//	// BL_Print_Message("HOST_Address = 0x%X \r\n", HOST_Address);-----------------------> Address to write
-//	/* Extract the payload length from the Host packet */
-//	Payload_Len = Host_Buffer[6];
-//	/* Verify the Extracted address to be valid address */
-//	Address_Verification = Host_Address_Verification(HOST_Address);
-//	if(ADDRESS_IS_VALID == Address_Verification)
-//    {
-//		/* Write the payload to the Flash memory */
-//		Flash_Payload_Write_Status = Flash_Memory_Write_Payload((uint8_t *)&Host_Buffer[7], HOST_Address, Payload_Len);
-//	// 	if(FLASH_PAYLOAD_WRITE_PASSED == Flash_Payload_Write_Status)
-//    //     {
-//	// 		/* Report payload write passed */
-//	//     	// Bootloader_Send_Data_To_Host((uint8_t *)&Flash_Payload_Write_Status, 1);
-//	// 		Write_status = WRITE_PASSED;
-//	// 		// BL_Print_Message("Payload Valid \r\n"); --------------------------> write ACK
-//
-//	// 	}
-//	// else{
-//	//     	// BL_Print_Message("Payload InValid \r\n");     ------------------------> write NACK
-//	// 		/* Report payload write failed */
-//	// 		// Bootloader_Send_Data_To_Host((uint8_t *)&Flash_Payload_Write_Status, 1);
-//	// 		Write_status = WRITE_FAILED;
-//	// 	}
-//	}
-//
-//    else
-//    {
-//			/* Report address verification failed */
-//		Address_Verification = ADDRESS_IS_INVALID;
-//		Bootloader_Send_Data_To_Host((uint8_t *)&Address_Verification, 1);
-//    }
-//	return Write_status;
-//}
-//
-//
-
-
-
-
-
-
-
-
-
 /*---------------------------------------------------------------------------------------------------------------*/
-
-
-
-
-
-
-
-
-
  void Bootloader_Upload_Sequence(void)
 {
-  	
-	uint16_t Payload_Data_Len = 0;
+  	uint32_t CCC=0;
 	/*uint8_t Update_Status = UPDATE_FAILED;*/
 
-    uint8_t Erase =  Perform_Flash_Erase (3,2);
+    uint8_t Erase =  Perform_Flash_Erase (3,3);
     if (Erase == SUCCESSFUL_ERASE)
     {
+    	uint8_t rx_data;
+    	uint8_t rx_buffer[50]={0};
+    	uint8_t rx_index = 0;
+    	//uint8_t receivedData[RAM_HOST_BUFFER_RX_LENGTH];
+    	uint32_t receivedData_IDX =0;
+
         // send ACK
-        uint8_t RAM_Buffer [RAM_HOST_BUFFER_RX_LENGTH];
-        uint32_t Payload_Data_Len = sizeof(RAM_Buffer)/sizeof(RAM_Buffer[0]);
-		
-		memset(RAM_Buffer, 0xFF, RAM_HOST_BUFFER_RX_LENGTH);
-		HAL_SPI_Receive(BL_DEBUG_SPI, &RAM_Buffer, Payload_Data_Len, HAL_MAX_DELAY); //----------------------------SPI
+        //uint8_t RAM_Buffer [RAM_HOST_BUFFER_RX_LENGTH];
+        //uint16_t Payload_Data_Len = sizeof(receivedData)/sizeof(receivedData[0]);
+		//uint8_t TX_ARRAY [1] = {0};
+		//memset(RAM_Buffer, 0xFF, RAM_HOST_BUFFER_RX_LENGTH);
+        //memset(receivedData, 0xFF, sizeof(receivedData));
+        HAL_UART_Transmit(&huart1, (uint8_t*)"START\n", 6, HAL_MAX_DELAY); // Send Start condition
+        HAL_Delay(500);
 
-		
-		uint8_t Writing_cheker = Flash_Memory_Write_Payload(RAM_Buffer, 0x800C800, Payload_Data_Len);
+		  while (CCC<RAM_HOST_BUFFER_RX_LENGTH)
+		  {
 
-		if (Writing_cheker == WRITE_FAILED) 
-		{
-			// BL_Print_Message("writing failed \r\n"); -----------------------> writing NACK
-			
+		    /* USER CODE END WHILE */
+
+		    /* USER CODE BEGIN 3 */
+			  if (HAL_UART_Receive(&huart1, &rx_data, 1, 1000) == HAL_OK)
+			      {
+			        if (rx_data == ':')
+			        {
+			        	rx_index = 0;
+			        	rx_buffer[rx_index]=':';
+			        	rx_index++;
+			        	HAL_UART_Transmit(&huart1, (uint8_t*)"ACK\n", 4, HAL_MAX_DELAY); // Send acknowledgment
+			        }
+			        else if (rx_data == '\n')
+			        {
+			        	rx_buffer[rx_index]='\n';
+			        	/*
+			          rx_buffer[rx_index] = '\0'; // Null terminate the string
+			          for(uint8_t Counter=0; Counter<50; Counter++)
+			          	  {
+			          		  	  if(rx_buffer[Counter]=='\0')
+			          		  	  {
+			          		  		rx_buffer[Counter]='\n';
+			          		  		rx_index++;
+			          		  		break;
+			          		  	  }
+			          			  receivedData[receivedData_IDX]=rx_buffer[Counter];
+			          			  receivedData_IDX++;
+
+
+			          	  }
+			          	  */
+			          HexParser_vParseData(rx_buffer);
+
+			          HAL_UART_Transmit(&huart1, (uint8_t*)"ACK\n", 4, HAL_MAX_DELAY); // Send acknowledgment
+			          rx_index = 0; // Reset buffer index
+			        }
+			        else
+			        {
+			          rx_buffer[rx_index++] = rx_data; // Store received character
+			          HAL_UART_Transmit(&huart1, (uint8_t*)"ACK\n", 4, HAL_MAX_DELAY); // Send acknowledgment
+			        }
+			      }
+			  CCC++;
+			  receivedData_IDX=0;
+		  }
+		  //Added by Abdallah
+
+		  //uint8_t* byteArray = convertHexCharArrayToByteArray(receivedData, sizeof(receivedData));
+		  /**************************************/
+		  //Flash_Memory_Write_Payload(binaryData, 0x800C800, sizeof(binaryData));
+		  //flashCodeToMemory((uint32_t*)0x800C800, binaryData, binaryArraySize);
+/*
+		  		if (Writing_cheker == WRITE_FAILED)
+		  		{
+		  			// BL_Print_Message("writing failed \r\n"); -----------------------> writing NACK
+
+		  		}
+		          else if (Writing_cheker == WRITE_PASSED)
+		          {
+		              // BL_Print_Message("writing Passed \r\n"); -----------------------> writing ACK
+		          }
+		          else
+		          {
+		          // send NACK
+		          }
+		          */
+		  /* USER CODE END 3 */
 		}
-        else if (Writing_cheker == WRITE_PASSED)
-        {
-            // BL_Print_Message("writing Passed \r\n"); -----------------------> writing ACK
-        }
-    }
-    else  
-    {
-        // send NACK
-    }
+
+}
+/***********Code of Abdullah***********/
+
+uint16_t FlashData[100];
+
+uint8_t HexParser_u8Ascii2Num(uint8_t Copy_u8Ascii)
+ {
+	uint8_t Local_u8Return = 0;
+ 	if(Copy_u8Ascii >= '0' && Copy_u8Ascii <= '9')
+ 	{
+ 		Local_u8Return = Copy_u8Ascii - '0';
+ 	}
+ 	else if(Copy_u8Ascii >='A' && Copy_u8Ascii <='F')
+ 	{
+ 		Local_u8Return = Copy_u8Ascii - 55;
+ 	}
+ 	return Local_u8Return;
+ }
+
+
+uint32_t upper_bits = 0;
+
+void HexParser_vParseData(uint8_t *Data)
+{
+	/* Calculate record address */
+	uint32_t Address = 0;
+	uint32_t Offset=0;
+	uint32_t Abs_Address=0;
+	uint8_t i;
+	uint8_t digit0 , digit1 , digit2 , digit3;
+
+	//uint8_t recordTypeHigh = HexParser_u8Ascii2Num(Data[7]);
+	//uint8_t recordTypeLow = HexParser_u8Ascii2Num(Data[8]);
+	//uint8_t recordType = (recordTypeHigh << 4) | recordTypeLow;
+
+	    /* If record type is data */
+	/*
+	    if (recordType == 0x00)
+	    {
+	        // Data record processing
+	    	digit0 = HexParser_u8Ascii2Num(Data[3]);
+	    		digit1 = HexParser_u8Ascii2Num(Data[4]);
+	    		digit2 = HexParser_u8Ascii2Num(Data[5]);
+	    		digit3 = HexParser_u8Ascii2Num(Data[6]);
+
+	    		Address = (0x800C800 | (digit0 << 12)
+	    								| (digit1 << 8)
+	    								| (digit2 << 4)
+	    								| digit3);
+
+	    		//Calculate Length
+	    		uint8_t Length_Low , Length_High , Length;
+	    		Length_Low = HexParser_u8Ascii2Num(Data[2]);
+	    		Length_High = HexParser_u8Ascii2Num(Data[1]);
+	    		Length = (Length_High << 4) | Length_Low;
+
+	    		//Store data in FlashArray
+	    		for(i = 0; i < Length/2; i++)
+	    		{
+	    			digit0 = HexParser_u8Ascii2Num(Data[(4*i)+9]);
+	    			digit1 = HexParser_u8Ascii2Num(Data[(4*i)+10]);
+	    			digit2 = HexParser_u8Ascii2Num(Data[(4*i)+11]);
+	    			digit3 = HexParser_u8Ascii2Num(Data[(4*i)+12]);
+	    			uint16_t halfWord = ((digit2 << 12) | (digit3 << 8) | (digit0 << 4) | digit1);
+
+	    			// Store half-word in FlashData array
+	    			FlashData[i] = halfWord;
+
+	    		}
+
+	    		Flash_Memory_Write_Payload(FlashData, Address,Length);
+	    		// Flashing data
+	        // ...
+	    }
+	    // If record type is end-of-file
+	    else
+	    {
+	        // End-of-file record processing
+	        // ...
+	    }
+*/
+
+
+		    /*		Address = (0x800C800 |
+		    		*/
+
+
+
+
+
+		    		//Calculate Length
+		    		uint8_t Length_Low , Length_High , Length;
+		    		Length_Low = HexParser_u8Ascii2Num(Data[2]);
+		    		Length_High = HexParser_u8Ascii2Num(Data[1]);
+		    		Length = (Length_High << 4) | Length_Low;
+		    		if((Data[7] == '0' && Data[8] == '1'))
+		    		{
+		    			//end of file
+
+		    		}else if((Data[7] == '0' && Data[8] == '4'))
+		    		{
+		    			upper_bits = (uint32_t)HexParser_u8Ascii2Num(Data[9]) * 4096 + HexParser_u8Ascii2Num(Data[10]) * 256 +
+		    							HexParser_u8Ascii2Num(Data[11]) * 16 + HexParser_u8Ascii2Num(Data[12]);
+		    			//upper_bits = (record[4] << 8) | record[5];
+		    			upper_bits <<= 16; // Shift left by 16 bits to form a 32-bit address
+
+		    		}else if((Data[7] == '0' && Data[8] == '5'))
+		    		{
+
+		    		}
+		    		else{
+		    			// Data record processing
+			    		digit0 = HexParser_u8Ascii2Num(Data[3]);
+		    			digit1 = HexParser_u8Ascii2Num(Data[4]);
+		    		    digit2 = HexParser_u8Ascii2Num(Data[5]);
+		    			digit3 = HexParser_u8Ascii2Num(Data[6]);
+
+		    			Offset =((digit0 << 12) | (digit1 << 8) | (digit2 << 4) | (digit3));
+		    			Abs_Address= Offset|upper_bits;
+		    			if(digit0 <0xc)
+		    			{
+		    				if(digit1<0x8)
+		    				{
+		    					Address = ((uint32_t)(0x8000000) | Abs_Address) ;
+		    				}
+		    				else
+		    				{
+		    					Address = ((uint32_t)(0x8000800) | Abs_Address);
+		    				}
+		    			}
+		    			else
+		    			{
+		    				if(digit1<0x8)
+		    				{
+		    					Address = ((uint32_t)(0x800C000) | Abs_Address) ;
+		    				}
+		    				else
+		    				{
+		    					Address = ((uint32_t)(0x800C800) | Abs_Address);
+		    				}
+		    			}
+
+		    			//Store data in FlashArray
+		    			for(i = 0; i < Length/2; i++)
+		    			{
+
+		    				digit0 = HexParser_u8Ascii2Num(Data[(4*i)+9]);
+		    				digit1 = HexParser_u8Ascii2Num(Data[(4*i)+10]);
+		    				digit2 = HexParser_u8Ascii2Num(Data[(4*i)+11]);
+		    				digit3 = HexParser_u8Ascii2Num(Data[(4*i)+12]);
+		    				uint16_t halfWord = ((digit2 << 12) | (digit3 << 8) | (digit0 << 4) | digit1);
+		    				// Store half-word in FlashData array
+		    				FlashData[i] = halfWord;
+
+		    			}
+		    			Flash_Memory_Write_Payload(FlashData, Address,Length);
+		    		}
+
+
+
+		    		// Flashing data
+		        // ...
+
+
+}
 
 	
 			/* -----------------------------------------------------code of Aborehab----------------------------------------- */
 
         
-}
+
 	
 

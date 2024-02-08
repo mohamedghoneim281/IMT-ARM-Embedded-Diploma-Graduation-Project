@@ -10,7 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "spi.h"
+#include "main.h"
+//#include "spi.h"
 
 
 #ifndef OTA_H
@@ -20,8 +21,8 @@
 
 
 
-#define BL_DEBUG_SPI                 &hspi2
-#define BL_HOST_COMMUNICATION_SPI  	 &hspi2
+//#define BL_DEBUG_SPI                 &hspi2
+//#define BL_HOST_COMMUNICATION_SPI  	 &hspi2
 
 
 
@@ -31,7 +32,7 @@
 
 
 
-#define RAM_HOST_BUFFER_RX_LENGTH     1
+#define RAM_HOST_BUFFER_RX_LENGTH     86000
 
 
 /* Write status */
@@ -105,7 +106,10 @@ void Bootloader_Send_NACK(void);
 void Bootloader_Send_Data_To_Host(uint8_t *Host_Buffer, uint32_t Data_Len);
 
 uint8_t Perform_Flash_Erase(uint8_t Sector_Numebr, uint8_t Number_Of_Sectors);
+uint8_t HexParser_u8Ascii2Num(uint8_t Copy_u8Ascii);
+void HexParser_vParseData(uint8_t *Data);
+uint8_t Flash_Memory_Write_Payload(uint16_t *Host_Payload, uint32_t Payload_Start_Address, uint8_t Payload_Len);
 
-
+HAL_StatusTypeDef flashCodeToMemory(uint32_t* flashAddress, uint8_t* codeBytes, uint32_t codeSize);
 
 #endif
