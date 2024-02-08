@@ -1,4 +1,4 @@
-# Jump-Bootloader
+# IMT-ARM-Embedded-Diploma-Graduation-Project
 Bootloader that can jump to execute APP1 or APP2 depending on input signal  
 Micro-Controller used STM32F401  
 ## How to use  
