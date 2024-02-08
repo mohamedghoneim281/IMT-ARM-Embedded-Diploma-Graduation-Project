@@ -16,11 +16,13 @@
 #include <stdarg.h>
 #include <gpio.h>
 
+/* Define the typedef for function pointer */
+typedef void (*FunctionPointer)(void);
 
 
 /*#defines*/
 #define APP1_START (0x08006400)			//Origin + Bootloader size
-#define APP2_START (0x800C800)			//Origin + Bootloader size + App1 Bank
+#define APP2_START (0x0800c800)//(0x800C800)			//Origin + Bootloader size + App1 Bank
 
 
 
@@ -50,5 +52,7 @@ void Bootloader_Init();
 void Jump_To_App(const uint32_t address);
 uint32_t readAddress(uint32_t address);
 void deinitEverything();
+/* Bootloader jump to application function */
+void Bootloader_JumpToApp(uint32_t appAddress);
 
 #endif
