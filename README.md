@@ -48,11 +48,35 @@ The Project is divided into 3 main Parts:
 ## Publishing Messages:
 **Clients can publish messages to specific topics on the broker. Messages can contain data payloads or commands. Publishers specify the topic they're publishing to, and the broker distributes the message to all subscribed clients interested in that topic.**  
 
-### ESP8266-(WIFI Connection)
+# ESP8266-(WIFI Connection)
 
 <p align="center">
   <img width="800" src="Images/NodeMCUv1.0-pinout.jpg">
 </p>
+
+## The ESP8266 NodeMCU:
+**it is a popular development board based on the ESP8266 WiFi module. It's widely used in IoT (Internet of Things) projects due to its low cost, small form factor, and built-in WiFi capabilities. The NodeMCU development board integrates the ESP8266 module with additional features like USB connectivity and GPIO pins, making it easy to prototype IoT applications.**
+
+## Features:
+**WiFi Connectivity: The ESP8266 NodeMCU has built-in WiFi support, allowing it to connect to wireless networks. It supports both station (client) and access point (AP) modes, enabling it to connect to existing networks or create its own network.**
+
+## GPIO Pins: 
+**The NodeMCU board features GPIO (General Purpose Input/Output) pins, which can be used to interface with various sensors, actuators, and other electronic components. These pins enable versatile connectivity for building IoT applications.**
+
+## USB Connectivity: 
+**The NodeMCU board includes a USB interface, simplifying the programming and power supply for the board. It can be easily connected to a computer for programming and debugging purposes.**
+
+## Arduino IDE Support: 
+**The NodeMCU can be programmed using the Arduino IDE, making it accessible to a wide range of developers familiar with the Arduino ecosystem. This allows for easy development and deployment of IoT projects.**
+
+## Connecting to WiFi:
+**To connect the ESP8266 NodeMCU to a WiFi network, you can use the Arduino IDE along with the ESP8266WiFi library.**
+
+# Target Hardware Firmware (Bootloader)
+
+* The Remote Hardware that needed to be updated with new Fireware, needs to already have a firmware to receive the updated file and flash it on the Hardware ROM. this Firmware called **Bootloader** in which contains Transmission protocol, communication protocol and Flashing Sequence.
+
+* The Bootloader Firmware is Targeted depended which means every Family of ECU needs a standalone Bootloader.
 
 ## How to use  
 Burn the binary fileof each  to the specified location in Linker Script:  
@@ -60,4 +84,10 @@ BOOTLOADER in address 0x08000000
 APP1 in address 0x08006400  
 APP2 in address 0x800C800 
   
-The video included in the repo shows how it works  
+The videos included in the repo shows how it works 
+
+
+## Future Enhancements
+
+   1. Upgrade the Communication protocol between NodeMCU and Target Hardware (STM) to a higher speed communication protocol (Ex: CAN - LIN - SPI).
+   2. Applying a CyberSecurity protocols such as encryptions to the Communication between the PC and The Target Hardware.
