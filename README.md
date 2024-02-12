@@ -88,7 +88,8 @@ APP1 in address 0x08006400
 APP2 in address 0x800C800 
   
 The videos included in the repo shows how it works 
-
+#Related links
+**This is the link to the video used for setup of mosquitto    <https://www.youtube.com/watch?v=hyJhKWhxAxA&t=20s>  (See till 6:30) since there is no need to add password**
 
 ## Future Enhancements
 
