@@ -5,8 +5,8 @@ Micro-Controller used STM32F401
 ### Team Members
 
 - **Mohamed Fathy Ghoneim**
-- **Abdullah Ayman Fathy**
-- **Nour AL Dein**
+- **Abdullah Ayman EL Bakh**
+- **Nour AL Dein Abo Bakr**
 
 ## Introduction
 
