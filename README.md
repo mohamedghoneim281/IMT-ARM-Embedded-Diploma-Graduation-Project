@@ -4,8 +4,8 @@ Micro-Controller used STM32F401
 
 ### Team Members
 
-- **Mohamed Ghoneim**
-- **Abdullah Ayman**
+- **Mohamed Fathy Ghoneim**
+- **Abdullah Ayman Fathy**
 - **Nour AL Dein**
 
 ## Introduction
@@ -89,5 +89,5 @@ The videos included in the repo shows how it works
 
 ## Future Enhancements
 
-   1. Upgrade the Communication protocol between NodeMCU and Target Hardware (STM) to a higher speed communication protocol (Ex: CAN - LIN - SPI).
+   1. Upgrade the Communication protocol between NodeMCU and Target Hardware (STM) to a higher speed communication protocol (Ex: CAN - SPI).
    2. Applying a CyberSecurity protocols such as encryptions to the Communication between the PC and The Target Hardware.
