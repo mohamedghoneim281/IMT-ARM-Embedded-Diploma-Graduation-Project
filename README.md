@@ -1,6 +1,9 @@
 # IMT-ARM-Embedded-Diploma-Graduation-Project
-Bootloader that can jump to execute APP1 or APP2 depending on input signal  
+
+-Working WIFI connection and MQTT Broker
+-Bootloader that can jump to execute APP1 or APP2 depending on input signal  
 Micro-Controller used STM32F401  
+-Effecient Parsing and Data flashing
 
 ### Team Members
 
@@ -91,3 +94,4 @@ The videos included in the repo shows how it works
 
    1. Upgrade the Communication protocol between NodeMCU and Target Hardware (STM) to a higher speed communication protocol (Ex: CAN - SPI).
    2. Applying a CyberSecurity protocols such as encryptions to the Communication between the PC and The Target Hardware.
+   3. Adding RTOS  middleware to facilitate handling of erasing and flshing data in the flash without stopping the execution of the current app.
